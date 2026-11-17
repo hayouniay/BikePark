@@ -5,59 +5,70 @@ name: Build Bike Parking
 on:
   workflow_call:
     inputs:
-      build-type:
-        description: "debug, release or test"
+      preset:
+        description: "CMake preset: debug, release or test"
         required: true
         type: string
-      build-command:
-        description: "Command that builds this build type"
-        required: true
-        type: string
-      test-command:
-        description: "Optional command that runs the tests after the build"
+      run-tests:
+        description: "Run ctest for this preset"
         required: false
-        type: string
-        default: ""
-      binary-source:
-        description: "Directory the build writes its executables to"
-        required: true
-        type: string
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   build:
-    name: ${{ inputs.build-type }}
+    name: ${{ inputs.preset }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
+    env:
+      QT_QPA_PLATFORM: offscreen
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Install build tools
-        # Add any extra libraries the Makefiles need here (for example the ZeroMQ dev packages).
+      - name: Install compiler, Ninja and Qt system libraries
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential
+          sudo apt-get install -y g++-14 ninja-build libgl1-mesa-dev libxkbcommon-dev \
+            libxkbcommon-x11-dev libfontconfig1-dev libxcb-cursor0 libxcb-icccm4 \
+            libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcb-randr0 \
+            libxcb-render-util0 libxcb-image0 libxcb-xkb-dev
 
-      - name: Build ${{ inputs.build-type }}
-        shell: bash
-        run: ${{ inputs.build-command }}
+      - name: Install CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: "3.31.6"
+
+      - name: Install Qt 6.8.3
+        # The presets expect Qt in $HOME/Qt/6.8.3/gcc_64; the runner's home is /home/runner.
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.8.3"
+          arch: gcc_64
+          dir: /home/runner/Qt
+
+      - name: Configure ${{ inputs.preset }}
+        run: cmake --preset ${{ inputs.preset }}
+
+      - name: Build ${{ inputs.preset }} (installs into dist/${{ inputs.preset }})
+        run: cmake --build --preset ${{ inputs.preset }}
 
       - name: Run tests
-        if: inputs.test-command != ''
-        shell: bash
-        run: ${{ inputs.test-command }}
+        if: inputs.run-tests
+        run: ctest --preset ${{ inputs.preset }}
 
-      - name: Install binaries into dist/${{ inputs.build-type }}/bin
-        shell: bash
-        run: scripts/ci/install-binaries.sh "${{ inputs.build-type }}" "${{ inputs.binary-source }}"
+      - name: Check the install
+        run: |
+          test -n "$(ls -A dist/${{ inputs.preset }}/bin)" || { echo "dist/${{ inputs.preset }}/bin is empty"; exit 1; }
+          ls -l dist/${{ inputs.preset }}/bin
 
-      - name: Upload dist/${{ inputs.build-type }}
+      - name: Upload dist/${{ inputs.preset }}
         uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ inputs.build-type }}
-          path: dist/${{ inputs.build-type }}
+          name: dist-${{ inputs.preset }}
+          path: dist/${{ inputs.preset }}
           if-no-files-found: error
           retention-days: 14

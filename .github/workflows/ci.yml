@@ -9,6 +9,7 @@ on:
     tags: ["v*"]
   pull_request:
     branches: [master]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -18,27 +19,17 @@ jobs:
     name: Stage 1 · test
     uses: ./.github/workflows/build-template.yml
     with:
-      build-type: test
-      build-command: make -j unittests_build
-      test-command: make -j unittests
-      # Directory where the unit-test executables are written. Adjust to match the Makefiles.
-      binary-source: dist-host/test-bin
+      preset: test
+      run-tests: true
 
   build:
-    name: Stage 2 · build ${{ matrix.build-type }}
+    name: Stage 2 · build ${{ matrix.preset }}
     needs: test
     strategy:
       fail-fast: true
       matrix:
-        include:
-          - build-type: debug
-            build-command: make -j debug
-            binary-source: dist-host/bin
-          - build-type: release
-            build-command: make -j release
-            binary-source: dist-host/bin
+        preset: [debug, release]
     uses: ./.github/workflows/build-template.yml
     with:
-      build-type: ${{ matrix.build-type }}
-      build-command: ${{ matrix.build-command }}
-      binary-source: ${{ matrix.binary-source }}
+      preset: ${{ matrix.preset }}
+      run-tests: false
