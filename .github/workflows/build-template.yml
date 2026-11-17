@@ -1,0 +1,63 @@
+# Reusable template: builds one build type, optionally runs tests,
+# installs the executables into dist/<build-type>/bin and uploads them.
+name: Build Bike Parking
+
+on:
+  workflow_call:
+    inputs:
+      build-type:
+        description: "debug, release or test"
+        required: true
+        type: string
+      build-command:
+        description: "Command that builds this build type"
+        required: true
+        type: string
+      test-command:
+        description: "Optional command that runs the tests after the build"
+        required: false
+        type: string
+        default: ""
+      binary-source:
+        description: "Directory the build writes its executables to"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ inputs.build-type }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        # Add any extra libraries the Makefiles need here (for example the ZeroMQ dev packages).
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+
+      - name: Build ${{ inputs.build-type }}
+        shell: bash
+        run: ${{ inputs.build-command }}
+
+      - name: Run tests
+        if: inputs.test-command != ''
+        shell: bash
+        run: ${{ inputs.test-command }}
+
+      - name: Install binaries into dist/${{ inputs.build-type }}/bin
+        shell: bash
+        run: scripts/ci/install-binaries.sh "${{ inputs.build-type }}" "${{ inputs.binary-source }}"
+
+      - name: Upload dist/${{ inputs.build-type }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ inputs.build-type }}
+          path: dist/${{ inputs.build-type }}
+          if-no-files-found: error
+          retention-days: 14

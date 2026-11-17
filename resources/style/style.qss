@@ -1,0 +1,73 @@
+/* Light theme. Every selector matches an object name set in src/ui/MainWindow.cpp.
+   Card colours come from src/ui/Theme.cpp (cards are painted, not styled). */
+
+* { font-family: "Ubuntu", "Noto Sans", "Segoe UI", sans-serif; }
+QWidget { font-size: 10pt; color: #111827; }
+QWidget#central { background: #f3f5f9; }
+QToolTip { background: #111827; color: #ffffff; border: none; padding: 6px 8px; border-radius: 6px; }
+QStatusBar { background: #f3f5f9; color: #6b7280; border-top: 1px solid #e5e9f1; }
+QDialog, QMessageBox, QInputDialog { background: #ffffff; }
+
+/* Header bar */
+QFrame#header { background: #ffffff; border: 1px solid #e5e9f1; border-radius: 16px; }
+QLabel#title { font-size: 18pt; font-weight: 700; color: #111827; }
+QLabel#subtitle { color: #6b7280; font-size: 10pt; }
+
+/* Cards */
+QFrame#panel { background: #ffffff; border: 1px solid #e5e9f1; border-radius: 16px; }
+QLabel#caption { color: #6b7280; font-size: 8pt; font-weight: 700; letter-spacing: 1px; }
+QFrame#divider { background: #e5e9f1; border: none; }
+QLabel#hint { color: #6b7280; font-size: 9pt; }
+QLabel#manageHint { color: #6b7280; font-size: 9pt; }
+QLabel#manageHint[error="true"] { color: #b91c1c; font-weight: 600; }
+
+/* Summary */
+QLabel#dotTotal { color: #2563eb; font-size: 12pt; }
+QLabel#dotFree { color: #16a34a; font-size: 12pt; }
+QLabel#dotOccupied { color: #dc2626; font-size: 12pt; }
+QLabel#rowName { color: #111827; font-size: 10pt; }
+QLabel#valueTotal { color: #111827; font-size: 16pt; font-weight: 700; }
+QLabel#valueFree { color: #15803d; font-size: 16pt; font-weight: 700; }
+QLabel#valueOccupied { color: #b91c1c; font-size: 16pt; font-weight: 700; }
+QProgressBar#occupancy { background: #e5e9f1; border: none; border-radius: 5px; }
+QProgressBar#occupancy::chunk { background: #2563eb; border-radius: 5px; }
+QListWidget#occupiedList { background: transparent; border: none; outline: 0; }
+QListWidget#occupiedList::item { padding: 8px 10px; border-radius: 8px; color: #111827; }
+QListWidget#occupiedList::item:hover { background: #f1f5fd; }
+QListWidget#occupiedList::item:selected { background: #f1f5fd; color: #111827; }
+
+/* Grid */
+QListView#slotGrid { background: transparent; border: none; outline: 0; }
+
+/* Selected slot */
+QLabel#slotTitle { font-size: 16pt; font-weight: 700; color: #111827; }
+QLabel#slotState { font-weight: 600; border-radius: 10px; padding: 6px 12px; background: #eef2f7; color: #475569; }
+QLabel#slotState[state="free"] { background: #dcfce7; color: #15803d; }
+QLabel#slotState[state="booked"] { background: #fee2e2; color: #b91c1c; }
+
+/* Manage slots */
+QLineEdit#slotName { background: #ffffff; border: 1px solid #d6dde9; border-radius: 10px; padding: 9px 12px; color: #111827; selection-background-color: #2563eb; }
+QLineEdit#slotName:focus { border: 1px solid #2563eb; }
+
+/* Buttons: one height, one radius, clear hover and disabled states */
+QPushButton { min-height: 22px; padding: 10px 16px; border-radius: 10px; font-weight: 600; border: 1px solid transparent; }
+QPushButton:focus { outline: none; }
+QPushButton#primary { background: #2563eb; color: #ffffff; border: 1px solid #2563eb; }
+QPushButton#primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+QPushButton#primary:pressed { background: #1e40af; }
+QPushButton#primary:disabled { background: #c7d7fb; border-color: #c7d7fb; color: #9ca3af; }
+QPushButton#secondary { background: #ffffff; color: #111827; border: 1px solid #d6dde9; }
+QPushButton#secondary:hover { background: #f1f5fd; }
+QPushButton#secondary:pressed { background: #d6dde9; }
+QPushButton#secondary:disabled { color: #9ca3af; border-color: #e5e9f1; }
+QPushButton#danger { background: #ffffff; color: #b91c1c; border: 1px solid #fecaca; }
+QPushButton#danger:hover { background: #fff1f2; }
+QPushButton#danger:pressed { background: #fecaca; }
+QPushButton#danger:disabled { color: #9ca3af; border-color: #e5e9f1; }
+
+/* Account and dialogs */
+QLabel#userChip { background: #eef2f7; color: #334155; border-radius: 10px; padding: 7px 12px; font-weight: 600; }
+QLabel#formMessage { color: #b91c1c; font-weight: 600; }
+QLineEdit { background: #ffffff; border: 1px solid #d6dde9; border-radius: 10px; padding: 9px 12px; color: #111827; selection-background-color: #2563eb; }
+QLineEdit:focus { border: 1px solid #2563eb; }
+QCheckBox { spacing: 8px; color: #111827; }

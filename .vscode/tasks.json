@@ -1,0 +1,291 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Configure \u00b7 debug",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--preset",
+                "debug"
+            ],
+            "icon": {
+                "id": "gear",
+                "color": "terminal.ansiBlue"
+            }
+        },
+        {
+            "label": "Configure \u00b7 release",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--preset",
+                "release"
+            ],
+            "icon": {
+                "id": "gear",
+                "color": "terminal.ansiBlue"
+            }
+        },
+        {
+            "label": "Configure \u00b7 tests only",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--preset",
+                "test"
+            ],
+            "icon": {
+                "id": "gear",
+                "color": "terminal.ansiYellow"
+            }
+        },
+        {
+            "label": "Build \u00b7 debug",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "--preset",
+                "debug"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "Configure \u00b7 debug"
+            ],
+            "dependsOrder": "parallel",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "icon": {
+                "id": "bug",
+                "color": "terminal.ansiMagenta"
+            }
+        },
+        {
+            "label": "Build \u00b7 release",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "--preset",
+                "release"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "dependsOn": [
+                "Configure \u00b7 release"
+            ],
+            "dependsOrder": "parallel",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "icon": {
+                "id": "rocket",
+                "color": "terminal.ansiGreen"
+            }
+        },
+        {
+            "label": "Build \u00b7 tests only",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "--preset",
+                "test"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "dependsOn": [
+                "Configure \u00b7 tests only"
+            ],
+            "dependsOrder": "parallel",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "icon": {
+                "id": "beaker",
+                "color": "terminal.ansiYellow"
+            }
+        },
+        {
+            "label": "Test \u00b7 debug",
+            "type": "shell",
+            "command": "ctest",
+            "args": [
+                "--preset",
+                "debug"
+            ],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "Build \u00b7 debug"
+            ],
+            "dependsOrder": "parallel",
+            "icon": {
+                "id": "checklist",
+                "color": "terminal.ansiGreen"
+            }
+        },
+        {
+            "label": "Test \u00b7 tests only",
+            "type": "shell",
+            "command": "ctest",
+            "args": [
+                "--preset",
+                "test"
+            ],
+            "dependsOn": [
+                "Build \u00b7 tests only"
+            ],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "icon": {
+                "id": "checklist",
+                "color": "terminal.ansiYellow"
+            }
+        },
+        {
+            "label": "Pipeline \u00b7 stage 1 test",
+            "type": "shell",
+            "command": "echo stage 1 done",
+            "dependsOn": [
+                "Test \u00b7 tests only"
+            ],
+            "dependsOrder": "sequence",
+            "icon": {
+                "id": "checklist",
+                "color": "terminal.ansiCyan"
+            }
+        },
+        {
+            "label": "Pipeline \u00b7 stage 2 build debug + release",
+            "type": "shell",
+            "command": "echo stage 2 done",
+            "dependsOn": [
+                "Build \u00b7 debug",
+                "Build \u00b7 release"
+            ],
+            "dependsOrder": "parallel",
+            "icon": {
+                "id": "package",
+                "color": "terminal.ansiCyan"
+            }
+        },
+        {
+            "label": "Pipeline \u00b7 all",
+            "type": "shell",
+            "command": "echo pipeline done",
+            "dependsOn": [
+                "Pipeline \u00b7 stage 1 test",
+                "Pipeline \u00b7 stage 2 build debug + release"
+            ],
+            "dependsOrder": "sequence",
+            "icon": {
+                "id": "run-all",
+                "color": "terminal.ansiCyan"
+            }
+        },
+        {
+            "label": "Format \u00b7 apply clang-format",
+            "type": "shell",
+            "command": "find src tests -type f \\( -name '*.cpp' -o -name '*.h' \\) -exec clang-format -i --style=file {} +",
+            "icon": {
+                "id": "symbol-color",
+                "color": "terminal.ansiGreen"
+            }
+        },
+        {
+            "label": "Format \u00b7 check (no changes)",
+            "type": "shell",
+            "command": "find src tests -type f \\( -name '*.cpp' -o -name '*.h' \\) -exec clang-format --dry-run --Werror --style=file {} +",
+            "icon": {
+                "id": "symbol-color",
+                "color": "terminal.ansiYellow"
+            }
+        },
+        {
+            "label": "Lint \u00b7 clang-tidy",
+            "type": "shell",
+            "command": "find src -name '*.cpp' -exec clang-tidy -p build/debug {} +",
+            "dependsOn": [
+                "Configure \u00b7 debug"
+            ],
+            "dependsOrder": "parallel",
+            "icon": {
+                "id": "shield",
+                "color": "terminal.ansiBlue"
+            }
+        },
+        {
+            "label": "Run \u00b7 BikeParking (debug)",
+            "type": "shell",
+            "command": "${workspaceFolder}/build/debug/BikeParking",
+            "dependsOn": [
+                "Build \u00b7 debug"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "clear": true
+            },
+            "icon": {
+                "id": "debug-start",
+                "color": "terminal.ansiGreen"
+            }
+        },
+        {
+            "label": "Clean \u00b7 build folder",
+            "type": "shell",
+            "command": "rm",
+            "args": [
+                "-rf",
+                "build"
+            ],
+            "icon": {
+                "id": "trash",
+                "color": "terminal.ansiRed"
+            }
+        },
+        {
+            "label": "Clean \u00b7 dist folder",
+            "type": "shell",
+            "command": "rm",
+            "args": [
+                "-rf",
+                "dist"
+            ],
+            "icon": {
+                "id": "trash",
+                "color": "terminal.ansiRed"
+            }
+        },
+        {
+            "label": "Clean \u00b7 everything",
+            "type": "shell",
+            "command": "echo cleaned",
+            "dependsOn": [
+                "Clean \u00b7 build folder",
+                "Clean \u00b7 dist folder"
+            ],
+            "dependsOrder": "parallel",
+            "icon": {
+                "id": "clear-all",
+                "color": "terminal.ansiRed"
+            }
+        }
+    ]
+}

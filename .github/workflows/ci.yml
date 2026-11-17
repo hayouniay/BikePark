@@ -1,0 +1,44 @@
+# Two stages:
+#   Stage 1 "test":  builds and runs the unit tests on its own. It uses no output from the builds.
+#   Stage 2 "build": builds debug and release. Runs only when stage 1 passes.
+name: Bike Parking CI
+
+on:
+  push:
+    branches: [ "master", "feature/*", "hotfix/*" ]
+    tags: ["v*"]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Stage 1 · test
+    uses: ./.github/workflows/build-template.yml
+    with:
+      build-type: test
+      build-command: make -j unittests_build
+      test-command: make -j unittests
+      # Directory where the unit-test executables are written. Adjust to match the Makefiles.
+      binary-source: dist-host/test-bin
+
+  build:
+    name: Stage 2 · build ${{ matrix.build-type }}
+    needs: test
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - build-type: debug
+            build-command: make -j debug
+            binary-source: dist-host/bin
+          - build-type: release
+            build-command: make -j release
+            binary-source: dist-host/bin
+    uses: ./.github/workflows/build-template.yml
+    with:
+      build-type: ${{ matrix.build-type }}
+      build-command: ${{ matrix.build-command }}
+      binary-source: ${{ matrix.binary-source }}
